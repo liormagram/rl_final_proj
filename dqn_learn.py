@@ -180,8 +180,8 @@ def dqn_learing(
         # might as well be random, since you haven't trained your net...)
         #####
 
-        rand = np.random.rand(1)
-        if rand < exploration.value:
+        rand = np.random.rand(1)[0]
+        if rand < exploration.value(t) or t == 0:
             action = np.random.randint(num_actions)
         else:
             out_actions_vals = Q(last_obs)
@@ -189,7 +189,7 @@ def dqn_learing(
         obs, reward, done, info = env.step(action)
 
         idx = replay_buffer.store_frame(obs)
-        last_obs = replay_buffer.encode_recent_observation(obs)
+        last_obs = replay_buffer.encode_recent_observation()
         replay_buffer.store_effect(idx=idx, action=action, reward=reward, done=done)
 
 
