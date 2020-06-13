@@ -9,6 +9,7 @@ from itertools import count
 import random
 import gym.spaces
 
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -74,7 +75,7 @@ def dqn_learing(
         Specifying the constructor and kwargs, as well as learning rate schedule
         for the optimizer
     exploration: Schedule (defined in utils.schedule)
-        schedule for probability of chosing random action.
+        schedule for probability of choosing random action.
     stopping_criterion: (env) -> bool
         should return true when it's ok for the RL algorithm to stop.
         takes in env and the number of steps executed so far.
@@ -123,10 +124,10 @@ def dqn_learing(
     # Initialize target q function and q function, i.e. build the model.
     ######
 
-    # YOUR CODE HERE
+    Q = q_func(in_channels=input_arg, num_actions=num_actions)
+    target_Q = q_func(in_channels=input_arg, num_actions=num_actions)
 
     ######
-
 
     # Construct Q network optimizer function
     optimizer = optimizer_spec.constructor(Q.parameters(), **optimizer_spec.kwargs)
@@ -179,7 +180,18 @@ def dqn_learing(
         # might as well be random, since you haven't trained your net...)
         #####
 
-        # YOUR CODE HERE
+        rand = np.random.rand(1)
+        if rand < exploration.value:
+            action = np.random.randint(num_actions)
+        else:
+            out_actions_vals = Q(last_obs)
+            action = torch.argmax(out_actions_vals).detach().numpy()
+        obs, reward, done, info = env.step(action)
+
+        idx = replay_buffer.store_frame(obs)
+        last_obs = replay_buffer.encode_recent_observation(obs)
+        replay_buffer.store_effect(idx=idx, action=action, reward=reward, done=done)
+
 
         #####
 
@@ -194,6 +206,7 @@ def dqn_learing(
         if (t > learning_starts and
                 t % learning_freq == 0 and
                 replay_buffer.can_sample(batch_size)):
+            pass
             # Here, you should perform training. Training consists of four steps:
             # 3.a: use the replay buffer to sample a batch of transitions (see the
             # replay buffer code for function definition, each batch that you sample
