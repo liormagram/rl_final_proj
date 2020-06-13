@@ -143,6 +143,7 @@ def dqn_learing(
     best_mean_episode_reward = -float('inf')
     last_obs = env.reset()
     LOG_EVERY_N_STEPS = 10000
+    loss_criterion = torch.nn.MSELoss()
 
     for t in count():
         ### 1. Check stopping criterion
@@ -184,9 +185,11 @@ def dqn_learing(
         if rand < exploration.value(t) or t == 0:
             action = np.random.randint(num_actions)
         else:
-            out_actions_vals = Q(last_obs)
+            out_actions_vals = Q(Variable(torch.tensor(last_obs).unsqueeze(0).float()))
             action = torch.argmax(out_actions_vals).detach().numpy()
         obs, reward, done, info = env.step(action)
+        if done:
+            env.reset()
 
         idx = replay_buffer.store_frame(obs)
         last_obs = replay_buffer.encode_recent_observation()
@@ -206,7 +209,7 @@ def dqn_learing(
         if (t > learning_starts and
                 t % learning_freq == 0 and
                 replay_buffer.can_sample(batch_size)):
-            pass
+
             # Here, you should perform training. Training consists of four steps:
             # 3.a: use the replay buffer to sample a batch of transitions (see the
             # replay buffer code for function definition, each batch that you sample
@@ -230,7 +233,30 @@ def dqn_learing(
             #      variable num_param_updates useful for this (it was initialized to 0)
             #####
 
-            # YOUR CODE HERE
+            obs_batch, act_batch, reward_batch, next_obs_batch, done_mask = replay_buffer.sample(batch_size=batch_size)
+            obs_batch = Variable(torch.tensor(obs_batch))
+            act_batch = Variable(torch.tensor(act_batch))
+            reward_batch = Variable(torch.tensor(reward_batch))
+            next_obs_batch = Variable(torch.tensor(next_obs_batch))
+
+            mask = Variable(torch.ones(done_mask.shape) - torch.tensor(done_mask)).data
+
+            pred_batch = Q(obs_batch.data.float())
+            Q_values = pred_batch.gather(1, act_batch.data.unsqueeze(1).long())
+            masked_Q_values = Q_values * mask
+
+
+            target_batch = target_Q(next_obs_batch.data.float())
+            target_Q_values = (reward_batch.data + gamma * torch.max(target_batch, 1)[0]).detach()
+            masked_target_Q_values = target_Q_values * mask
+
+            # loss = (-loss_criterion(masked_Q_values, masked_target_Q_values)).clamp(-1, 1)
+            loss = loss_criterion(masked_Q_values, masked_target_Q_values)
+
+
+
+            a = 1
+
 
             #####
 
