@@ -191,7 +191,7 @@ def dqn_learing(
         else:
             last_obs = Variable(torch.tensor(last_obs).float()).data.to('cuda')
             out_actions_vals = Q(last_obs.unsqueeze(0))
-            action = torch.argmax(out_actions_vals).detach().numpy()
+            action = torch.argmax(out_actions_vals).cpu().detach().numpy()
         obs, reward, done, info = env.step(action)
         if done:
             env.reset()
