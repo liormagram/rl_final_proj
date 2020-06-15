@@ -246,7 +246,7 @@ def dqn_learing(
             next_obs_batch = Variable(torch.tensor(next_obs_batch))
 
             #3.b
-            mask = Variable(torch.ones(done_mask.shape) - torch.tensor(done_mask)).data
+            mask = Variable(torch.ones(done_mask.shape) - torch.tensor(done_mask)).data.cuda()
 
             pred_batch = Q(obs_batch.data.cuda().float())
             Q_values = pred_batch.gather(1, act_batch.data.unsqueeze(1).cuda().long()).squeeze()
