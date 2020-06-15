@@ -9,11 +9,12 @@ from utils.schedule import LinearSchedule
 BATCH_SIZE = 32
 GAMMA = 0.99
 REPLAY_BUFFER_SIZE = 1000000
-# LEARNING_STARTS = 50000
-LEARNING_STARTS = 50
+LEARNING_STARTS = 50000
+# LEARNING_STARTS = 50
 LEARNING_FREQ = 4
 FRAME_HISTORY_LEN = 4
-TARGER_UPDATE_FREQ = 10000
+TARGET_UPDATE_FREQ = 10000
+# TARGET_UPDATE_FREQ = 100
 LEARNING_RATE = 0.00025
 ALPHA = 0.95
 EPS = 0.01
@@ -44,7 +45,7 @@ def main(env, num_timesteps):
         learning_starts=LEARNING_STARTS,
         learning_freq=LEARNING_FREQ,
         frame_history_len=FRAME_HISTORY_LEN,
-        target_update_freq=TARGER_UPDATE_FREQ,
+        target_update_freq=TARGET_UPDATE_FREQ,
     )
 
 if __name__ == '__main__':

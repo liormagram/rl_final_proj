@@ -127,6 +127,10 @@ def dqn_learing(
     Q = q_func(in_channels=input_arg, num_actions=num_actions)
     target_Q = q_func(in_channels=input_arg, num_actions=num_actions)
 
+    if USE_CUDA:
+        Q.cuda()
+        target_Q.cuda()
+
     ######
 
     # Construct Q network optimizer function
@@ -233,16 +237,18 @@ def dqn_learing(
             #      variable num_param_updates useful for this (it was initialized to 0)
             #####
 
+            #3.a
             obs_batch, act_batch, reward_batch, next_obs_batch, done_mask = replay_buffer.sample(batch_size=batch_size)
             obs_batch = Variable(torch.tensor(obs_batch))
             act_batch = Variable(torch.tensor(act_batch))
             reward_batch = Variable(torch.tensor(reward_batch))
             next_obs_batch = Variable(torch.tensor(next_obs_batch))
 
+            #3.b
             mask = Variable(torch.ones(done_mask.shape) - torch.tensor(done_mask)).data
 
             pred_batch = Q(obs_batch.data.float())
-            Q_values = pred_batch.gather(1, act_batch.data.unsqueeze(1).long())
+            Q_values = pred_batch.gather(1, act_batch.data.unsqueeze(1).long()).squeeze()
             masked_Q_values = Q_values * mask
 
 
@@ -251,12 +257,19 @@ def dqn_learing(
             masked_target_Q_values = target_Q_values * mask
 
             # loss = (-loss_criterion(masked_Q_values, masked_target_Q_values)).clamp(-1, 1)
-            loss = loss_criterion(masked_Q_values, masked_target_Q_values)
+            # loss = loss_criterion(masked_Q_values, masked_target_Q_values)
+            loss = -(masked_target_Q_values - masked_Q_values).mean().clamp(-1, 1)
 
 
+            #3.c
+            optimizer.zero_grad()
+            loss.backward()
+            optimizer.step()
 
-            a = 1
-
+            #3.d
+            if t % target_update_freq == 0:
+                target_Q.load_state_dict(Q.state_dict())
+                num_param_updates += 1
 
             #####
 
