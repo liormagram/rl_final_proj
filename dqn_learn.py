@@ -189,8 +189,8 @@ def dqn_learing(
         if rand < exploration.value(t) or t == 0:
             action = np.random.randint(num_actions)
         else:
-            last_obs = Variable(torch.tensor(last_obs)).data
-            out_actions_vals = Q(last_obs.unsqueeze(0).float())
+            last_obs = Variable(torch.tensor(last_obs).float()).data
+            out_actions_vals = Q(last_obs.unsqueeze(0))
             action = torch.argmax(out_actions_vals).detach().numpy()
         obs, reward, done, info = env.step(action)
         if done:
