@@ -272,8 +272,8 @@ def dqn_learing(
             masked_target_Q_values = target_Q_values * mask
 
             # loss = (-loss_criterion(masked_Q_values, masked_target_Q_values)).clamp(-1, 1)
-            # loss = loss_criterion(masked_Q_values, masked_target_Q_values)
-            loss = -(masked_target_Q_values - masked_Q_values).mean().clamp(-1, 1)
+            loss = loss_criterion(masked_Q_values, masked_target_Q_values)
+            # loss = -(masked_target_Q_values - masked_Q_values).mean().clamp(-1, 1)
 
 
             #3.c
