@@ -189,7 +189,7 @@ def dqn_learing(
         if rand < exploration.value(t) or t == 0:
             action = np.random.randint(num_actions)
         else:
-            last_obs = Variable(torch.tensor(last_obs).float()).data.to('cuda')
+            last_obs = Variable(torch.tensor(last_obs).float()).data
             out_actions_vals = Q(last_obs.unsqueeze(0))
             action = torch.argmax(out_actions_vals).cpu().detach().numpy()
         obs, reward, done, info = env.step(action)
@@ -246,15 +246,14 @@ def dqn_learing(
             next_obs_batch = Variable(torch.tensor(next_obs_batch))
 
             #3.b
-            mask = Variable(torch.ones(done_mask.shape) - torch.tensor(done_mask)).data.cuda()
+            mask = Variable(torch.ones(done_mask.shape) - torch.tensor(done_mask)).data
 
-            pred_batch = Q(obs_batch.data.cuda().float())
-            Q_values = pred_batch.gather(1, act_batch.data.unsqueeze(1).cuda().long()).squeeze()
+            pred_batch = Q(obs_batch.data.float())
+            Q_values = pred_batch.gather(1, act_batch.data.unsqueeze(1).long()).squeeze()
             masked_Q_values = Q_values * mask
 
-
-            target_batch = target_Q(next_obs_batch.data.cuda().float())
-            target_Q_values = (reward_batch.data + gamma * torch.max(target_batch, 1)[0]).cpu().detach()
+            target_batch = target_Q(next_obs_batch.data.float())
+            target_Q_values = (reward_batch.data + gamma * torch.max(target_batch, 1)[0]).detach()
             masked_target_Q_values = target_Q_values * mask
 
             # loss = (-loss_criterion(masked_Q_values, masked_target_Q_values)).clamp(-1, 1)
