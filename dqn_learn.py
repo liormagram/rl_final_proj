@@ -20,6 +20,7 @@ from utils.gym import get_wrapper_by_name
 
 USE_CUDA = torch.cuda.is_available()
 dtype = torch.cuda.FloatTensor if torch.cuda.is_available() else torch.FloatTensor
+device = torch.device('cuda:0') if torch.cuda.is_available() else torch.device('cpu')
 
 class Variable(autograd.Variable):
     def __init__(self, data, *args, **kwargs):
@@ -189,7 +190,7 @@ def dqn_learing(
         if rand < exploration.value(t) or t == 0:
             action = np.random.randint(num_actions)
         else:
-            last_obs = Variable(torch.tensor(last_obs).float()).data
+            last_obs = torch.tensor(last_obs).float().to(device)
             out_actions_vals = Q(last_obs.unsqueeze(0))
             action = torch.argmax(out_actions_vals).cpu().detach().numpy()
         obs, reward, done, info = env.step(action)
@@ -240,23 +241,20 @@ def dqn_learing(
 
             #3.a
             obs_batch, act_batch, reward_batch, next_obs_batch, done_mask = replay_buffer.sample(batch_size=batch_size)
-            obs_batch = Variable(torch.tensor(obs_batch))
-            act_batch = Variable(torch.tensor(act_batch))
-            reward_batch = Variable(torch.tensor(reward_batch))
-            next_obs_batch = Variable(torch.tensor(next_obs_batch))
+            obs_batch = torch.tensor(obs_batch).to(device)
+            act_batch = torch.tensor(act_batch).to(device)
+            reward_batch = torch.tensor(reward_batch).to(device)
+            next_obs_batch = torch.tensor(next_obs_batch).to(device)
 
             #3.b
-            mask = Variable(torch.ones(done_mask.shape) - torch.tensor(done_mask)).data
+            mask = (torch.ones(done_mask.shape) - torch.tensor(done_mask)).to(device)
 
-            print(obs_batch.data.dtype)
-            obs_batch = obs_batch.data.float()
-            print(obs_batch.dtype)
-            pred_batch = Q(obs_batch)
-            Q_values = pred_batch.gather(1, act_batch.data.unsqueeze(1).long()).squeeze()
+            pred_batch = Q(obs_batch.float())
+            Q_values = pred_batch.gather(1, act_batch.unsqueeze(1).long()).squeeze()
             masked_Q_values = Q_values * mask
 
-            target_batch = target_Q(next_obs_batch.data.float())
-            target_Q_values = (reward_batch.data + gamma * torch.max(target_batch, 1)[0]).detach()
+            target_batch = target_Q(next_obs_batch.float())
+            target_Q_values = (reward_batch + gamma * torch.max(target_batch, 1)[0]).detach()
             masked_target_Q_values = target_Q_values * mask
 
             # loss = (-loss_criterion(masked_Q_values, masked_target_Q_values)).clamp(-1, 1)
