@@ -130,6 +130,7 @@ def dqn_learing(
     target_Q = q_func(in_channels=input_arg, num_actions=num_actions)
     weights_folder = 'weights'
 
+    last_file = 0
     weights_files = os.listdir(os.path.join(weights_folder))
     if len(weights_files) > 0:
         weight_nums = [int(x) for x in weights_files]
@@ -140,6 +141,7 @@ def dqn_learing(
 
         Q.load_state_dict(state_dict)
         target_Q.load_state_dict(state_dict)
+
 
     if USE_CUDA:
         Q.cuda()
@@ -163,7 +165,7 @@ def dqn_learing(
     LOG_EVERY_N_STEPS = 10000
     loss_criterion = torch.nn.MSELoss()
 
-    for t in count():
+    for t in count(firstval=last_file+1):
         ### 1. Check stopping criterion
         if stopping_criterion is not None and stopping_criterion(env):
             break
