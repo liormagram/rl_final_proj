@@ -8,6 +8,7 @@ from collections import namedtuple
 from itertools import count
 import random
 import gym.spaces
+import os
 
 
 import torch
@@ -127,6 +128,18 @@ def dqn_learing(
 
     Q = q_func(in_channels=input_arg, num_actions=num_actions)
     target_Q = q_func(in_channels=input_arg, num_actions=num_actions)
+    weights_folder = 'weights'
+
+    weights_files = os.listdir(os.path.join(weights_folder))
+    if len(weights_files) > 0:
+        weight_nums = [int(x) for x in weights_files]
+        last_file = max(weight_nums)
+
+    file = os.path.join(weights_folder, str(last_file))
+    state_dict = torch.load(file)
+
+    Q.load_state_dict(state_dict)
+    target_Q.load_state_dict(state_dict)
 
     if USE_CUDA:
         Q.cuda()
@@ -238,7 +251,6 @@ def dqn_learing(
             #      you should update every target_update_freq steps, and you may find the
             #      variable num_param_updates useful for this (it was initialized to 0)
             #####
-
             #3.a
             obs_batch, act_batch, reward_batch, next_obs_batch, done_mask = replay_buffer.sample(batch_size=batch_size)
             obs_batch = torch.tensor(obs_batch).to(device)
@@ -291,6 +303,7 @@ def dqn_learing(
             print("episodes %d" % len(episode_rewards))
             print("exploration %f" % exploration.value(t))
             sys.stdout.flush()
+            torch.save(target_Q.state_dict(), os.path.join(weights_folder, str(t)))
 
             # Dump statistics to pickle
             with open('statistics.pkl', 'wb') as f:
