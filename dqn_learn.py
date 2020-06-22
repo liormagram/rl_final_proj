@@ -248,7 +248,7 @@ def dqn_learing(
             #3.b
             mask = Variable(torch.ones(done_mask.shape) - torch.tensor(done_mask)).data
 
-            print(obs_batch.dtype)
+            print(obs_batch.data.dtype)
             obs_batch = obs_batch.data.float()
             print(obs_batch.dtype)
             pred_batch = Q(obs_batch)
