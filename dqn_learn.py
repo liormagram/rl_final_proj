@@ -165,7 +165,7 @@ def dqn_learing(
     LOG_EVERY_N_STEPS = 10000
     loss_criterion = torch.nn.MSELoss()
 
-    for t in count(firstval=last_file+1):
+    for t in count(start=last_file+1):
         ### 1. Check stopping criterion
         if stopping_criterion is not None and stopping_criterion(env):
             break
