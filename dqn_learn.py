@@ -254,7 +254,7 @@ def dqn_learing(
 
 
             target_batch = target_Q(next_obs_batch.data.cuda().float())
-            target_Q_values = (reward_batch.data + gamma * torch.max(target_batch, 1)[0]).detach()
+            target_Q_values = (reward_batch.data + gamma * torch.max(target_batch, 1)[0]).cpu().detach()
             masked_target_Q_values = target_Q_values * mask
 
             # loss = (-loss_criterion(masked_Q_values, masked_target_Q_values)).clamp(-1, 1)
