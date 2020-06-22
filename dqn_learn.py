@@ -135,11 +135,11 @@ def dqn_learing(
         weight_nums = [int(x) for x in weights_files]
         last_file = max(weight_nums)
 
-    file = os.path.join(weights_folder, str(last_file))
-    state_dict = torch.load(file)
+        file = os.path.join(weights_folder, str(last_file))
+        state_dict = torch.load(file)
 
-    Q.load_state_dict(state_dict)
-    target_Q.load_state_dict(state_dict)
+        Q.load_state_dict(state_dict)
+        target_Q.load_state_dict(state_dict)
 
     if USE_CUDA:
         Q.cuda()
