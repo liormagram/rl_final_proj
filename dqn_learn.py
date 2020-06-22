@@ -304,8 +304,10 @@ def dqn_learing(
             print("best mean reward %f" % best_mean_episode_reward)
             print("episodes %d" % len(episode_rewards))
             print("exploration %f" % exploration.value(t))
+            print("loss: " + str(loss))
             sys.stdout.flush()
-            torch.save(target_Q.state_dict(), os.path.join(weights_folder, str(t)))
+            if t % LOG_EVERY_N_STEPS * 5 == 0:
+                torch.save(target_Q.state_dict(), os.path.join(weights_folder, str(t)))
 
             # Dump statistics to pickle
             with open('statistics.pkl', 'wb') as f:
