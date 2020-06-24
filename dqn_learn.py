@@ -130,19 +130,19 @@ def dqn_learing(
 
     Q = q_func(in_channels=input_arg, num_actions=num_actions)
     target_Q = q_func(in_channels=input_arg, num_actions=num_actions)
-    weights_folder = 'weights'
-
-    last_file = 0
-    weights_files = os.listdir(os.path.join(weights_folder))
-    if len(weights_files) > 0:
-        weight_nums = [int(x) for x in weights_files]
-        last_file = max(weight_nums)
-
-        file = os.path.join(weights_folder, str(last_file))
-        state_dict = torch.load(file)
-
-        Q.load_state_dict(state_dict)
-        target_Q.load_state_dict(state_dict)
+    # weights_folder = 'weights'
+    #
+    # last_file = 0
+    # weights_files = os.listdir(os.path.join(weights_folder))
+    # if len(weights_files) > 0:
+    #     weight_nums = [int(x) for x in weights_files]
+    #     last_file = max(weight_nums)
+    #
+    #     file = os.path.join(weights_folder, str(last_file))
+    #     state_dict = torch.load(file)
+    #
+    #     Q.load_state_dict(state_dict)
+    #     target_Q.load_state_dict(state_dict)
 
 
     if USE_CUDA:
@@ -327,8 +327,8 @@ def dqn_learing(
             print("exploration %f" % exploration.value(t))
             print("loss: " + str(bellamn_error.mean()))
             sys.stdout.flush()
-            if t % LOG_EVERY_N_STEPS * 5 == 0:
-                torch.save(target_Q.state_dict(), os.path.join(weights_folder, str(t)))
+            # if t % LOG_EVERY_N_STEPS * 5 == 0:
+            #     torch.save(target_Q.state_dict(), os.path.join(weights_folder, str(t)))
 
             # Dump statistics to pickle
             with open('statistics.pkl', 'wb') as f:
