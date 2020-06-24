@@ -298,7 +298,7 @@ def dqn_learing(
 
             #3.c
             optimizer.zero_grad()
-            pred_batch.backward(bellamn_error)
+            pred_batch.backward(bellamn_error.unsqueeze(1))
             # loss.backward()
             optimizer.step()
 
