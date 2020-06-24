@@ -225,6 +225,7 @@ def dqn_learing(
                 rewards = []
                 total_rewards = 0
                 if len(means) % 500 == 0:
+                    print('savefig')
                     plt.plot(t, means)
                     plt.savefig('learning_curve.png')
             env.reset()
