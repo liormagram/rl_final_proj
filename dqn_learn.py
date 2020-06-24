@@ -171,7 +171,7 @@ def dqn_learing(
     time_steps = []
     total_rewards = 0
 
-    for t in count(start=last_file+1):
+    for t in count():
         ### 1. Check stopping criterion
         if stopping_criterion is not None and stopping_criterion(env):
             break
