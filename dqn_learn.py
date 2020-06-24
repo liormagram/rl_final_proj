@@ -298,7 +298,7 @@ def dqn_learing(
 
             #3.c
             optimizer.zero_grad()
-            masked_Q_values.backward(bellamn_error)
+            Q_values.backward(bellamn_error)
             # loss.backward()
             optimizer.step()
 
