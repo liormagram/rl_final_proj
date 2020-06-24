@@ -291,9 +291,9 @@ def dqn_learing(
 
             ###
             ###
-            bellamn_error = (-loss_criterion(masked_Q_values, masked_target_Q_values)).clamp(-1, 1)
+            # bellamn_error = (-loss_criterion(masked_Q_values, masked_target_Q_values)).clamp(-1, 1)
             # loss = loss_criterion(masked_Q_values, masked_target_Q_values)
-            # loss = -(masked_target_Q_values - masked_Q_values).mean().clamp(-1, 1)
+            bellamn_error = -(masked_target_Q_values - masked_Q_values).clamp(-1, 1)
 
 
             #3.c
@@ -325,7 +325,7 @@ def dqn_learing(
             print("best mean reward %f" % best_mean_episode_reward)
             print("episodes %d" % len(episode_rewards))
             print("exploration %f" % exploration.value(t))
-            print("loss: " + str(loss))
+            print("loss: " + str(bellamn_error.mean()))
             sys.stdout.flush()
             if t % LOG_EVERY_N_STEPS * 5 == 0:
                 torch.save(target_Q.state_dict(), os.path.join(weights_folder, str(t)))

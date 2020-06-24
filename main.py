@@ -37,7 +37,7 @@ LEARNING_FREQ = args.learning_freq
 FRAME_HISTORY_LEN = args.frame_history_len
 TARGET_UPDATE_FREQ = args.target_update_freq
 # TARGET_UPDATE_FREQ = 100
-LEARNING_RATE = args.learning
+LEARNING_RATE = args.learning_rate
 ALPHA = 0.95
 EPS = 0.01
 
