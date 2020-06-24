@@ -288,14 +288,17 @@ def dqn_learing(
             target_Q_values = (reward_batch + gamma * torch.max(target_batch, 1)[0]).detach()
             masked_target_Q_values = target_Q_values * mask
 
-            # loss = (-loss_criterion(masked_Q_values, masked_target_Q_values)).clamp(-1, 1)
-            loss = loss_criterion(masked_Q_values, masked_target_Q_values)
+            ###
+            ###
+            bellamn_error = (-loss_criterion(masked_Q_values, masked_target_Q_values)).clamp(-1, 1)
+            # loss = loss_criterion(masked_Q_values, masked_target_Q_values)
             # loss = -(masked_target_Q_values - masked_Q_values).mean().clamp(-1, 1)
 
 
             #3.c
             optimizer.zero_grad()
-            loss.backward()
+            pred_batch.backword(bellamn_error)
+            # loss.backward()
             optimizer.step()
 
             #3.d
