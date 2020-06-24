@@ -9,6 +9,7 @@ from itertools import count
 import random
 import gym.spaces
 import os
+import matplotlib.pyplot as plt
 
 
 import torch
@@ -22,6 +23,7 @@ from utils.gym import get_wrapper_by_name
 USE_CUDA = torch.cuda.is_available()
 dtype = torch.cuda.FloatTensor if torch.cuda.is_available() else torch.FloatTensor
 device = torch.device('cuda:0') if torch.cuda.is_available() else torch.device('cpu')
+LEARNING_CURVE_FREQ = 100
 
 class Variable(autograd.Variable):
     def __init__(self, data, *args, **kwargs):
@@ -164,6 +166,10 @@ def dqn_learing(
     last_obs = env.reset()
     LOG_EVERY_N_STEPS = 10000
     loss_criterion = torch.nn.MSELoss()
+    means = []
+    rewards = []
+    time_steps = []
+    total_rewards = 0
 
     for t in count(start=last_file+1):
         ### 1. Check stopping criterion
@@ -209,7 +215,18 @@ def dqn_learing(
             out_actions_vals = Q(last_obs.unsqueeze(0))
             action = torch.argmax(out_actions_vals).cpu().detach().numpy()
         obs, reward, done, info = env.step(action)
+
+        total_rewards += reward
         if done:
+            rewards.append(total_rewards)
+            if len(rewards) == LEARNING_CURVE_FREQ:
+                means.append(sum(rewards)/len(rewards))
+                time_steps.append(t)
+                rewards = []
+                total_rewards = 0
+                if t % 500000 == 0:
+                    plt.plot(t, means)
+                    plt.savefig('learning_curve.png')
             env.reset()
 
         idx = replay_buffer.store_frame(obs)
