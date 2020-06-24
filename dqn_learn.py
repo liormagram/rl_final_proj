@@ -221,10 +221,11 @@ def dqn_learing(
             rewards.append(total_rewards)
             if len(rewards) == LEARNING_CURVE_FREQ:
                 means.append(sum(rewards)/len(rewards))
-                time_steps.append(t)
+                time_steps.append(len(means)*LEARNING_CURVE_FREQ)
                 rewards = []
                 total_rewards = 0
-                if t % 500000 == 0:
+                if len(means) % 500 == 0:
+                    print('savefig')
                     plt.plot(t, means)
                     plt.savefig('learning_curve.png')
             env.reset()
