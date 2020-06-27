@@ -293,7 +293,7 @@ def dqn_learing(
             ###
             # bellamn_error = (-loss_criterion(masked_Q_values, masked_target_Q_values)).clamp(-1, 1)
             # loss = loss_criterion(masked_Q_values, masked_target_Q_values)
-            bellamn_error = (masked_target_Q_values - masked_Q_values).clamp(-1, 1)
+            bellamn_error = -(masked_target_Q_values - masked_Q_values).clamp(-1, 1)
 
 
             #3.c
