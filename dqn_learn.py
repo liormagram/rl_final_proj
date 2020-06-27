@@ -207,17 +207,28 @@ def dqn_learing(
         # might as well be random, since you haven't trained your net...)
         #####
 
+
+        idx = replay_buffer.store_frame(last_obs)
+        net_input_obs = replay_buffer.encode_recent_observation()
+
+        # Action choosing
         rand = np.random.rand(1)[0]
         if rand < exploration.value(t) or t == 0:
             action = np.random.randint(num_actions)
         else:
-            last_obs = torch.tensor(last_obs).float().to(device)
-            out_actions_vals = Q(last_obs.unsqueeze(0))
+            net_input_obs = torch.tensor(net_input_obs).float().to(device)
+            out_actions_vals = Q(net_input_obs.unsqueeze(0))
             action = torch.argmax(out_actions_vals).cpu().detach().numpy()
+
+        # Environment interaction
         obs, reward, done, info = env.step(action)
+
+        replay_buffer.store_effect(idx=idx, action=action, reward=reward, done=done)
 
         total_rewards += reward
         if done:
+            last_obs = env.reset()
+            # Graph
             rewards.append(total_rewards)
             if len(rewards) == LEARNING_CURVE_FREQ:
                 means.append(sum(rewards)/len(rewards))
@@ -228,11 +239,8 @@ def dqn_learing(
                     print('savefig')
                     plt.plot(t, means)
                     plt.savefig('learning_curve.png')
-            env.reset()
-
-        idx = replay_buffer.store_frame(obs)
-        last_obs = replay_buffer.encode_recent_observation()
-        replay_buffer.store_effect(idx=idx, action=action, reward=reward, done=done)
+        else:
+            last_obs = obs
 
 
         #####
@@ -303,9 +311,9 @@ def dqn_learing(
             optimizer.step()
 
             #3.d
-            if t % target_update_freq == 0:
+            num_param_updates += 1
+            if num_param_updates % target_update_freq == 0:
                 target_Q.load_state_dict(Q.state_dict())
-                num_param_updates += 1
 
             #####
 
