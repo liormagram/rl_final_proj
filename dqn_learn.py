@@ -165,11 +165,7 @@ def dqn_learing(
     best_mean_episode_reward = -float('inf')
     last_obs = env.reset()
     LOG_EVERY_N_STEPS = 10000
-    loss_criterion = torch.nn.MSELoss()
-    means = []
-    rewards = []
-    time_steps = []
-    total_rewards = 0
+    # loss_criterion = torch.nn.MSELoss()
 
     for t in count():
         ### 1. Check stopping criterion
@@ -225,20 +221,8 @@ def dqn_learing(
 
         replay_buffer.store_effect(idx=idx, action=action, reward=reward, done=done)
 
-        total_rewards += reward
         if done:
             last_obs = env.reset()
-            # Graph
-            rewards.append(total_rewards)
-            if len(rewards) == LEARNING_CURVE_FREQ:
-                means.append(sum(rewards)/len(rewards))
-                time_steps.append(len(means)*LEARNING_CURVE_FREQ)
-                rewards = []
-                total_rewards = 0
-                if len(means) % 500 == 0:
-                    print('savefig')
-                    plt.plot(t, means)
-                    plt.savefig('learning_curve.png')
         else:
             last_obs = obs
 
@@ -331,6 +315,12 @@ def dqn_learing(
             print("Timestep %d" % (t,))
             print("mean reward (100 episodes) %f" % mean_episode_reward)
             print("best mean reward %f" % best_mean_episode_reward)
+
+            with open("mean.txt", "a") as mean_file:
+                mean_file.write(str(mean_episode_reward) + '\n')
+            with open("best_mean.txt", "a") as best_mean_file:
+                best_mean_file.write(str(best_mean_episode_reward) + '\n')
+
             print("episodes %d" % len(episode_rewards))
             print("exploration %f" % exploration.value(t))
             print("loss: " + str(bellamn_error.mean()))
