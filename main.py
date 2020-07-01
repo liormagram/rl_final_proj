@@ -49,8 +49,8 @@ def main(env, num_timesteps):
         return get_wrapper_by_name(env, "Monitor").get_total_steps() >= num_timesteps
 
     optimizer_spec = OptimizerSpec(
-        constructor=optim.RMSprop,
-        kwargs=dict(lr=LEARNING_RATE, alpha=ALPHA, eps=EPS),
+        constructor=optim.Adam,
+        kwargs=dict(lr=LEARNING_RATE, eps=EPS),
     )
 
     exploration_schedule = LinearSchedule(1000000, 0.1)
