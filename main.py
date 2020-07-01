@@ -50,7 +50,7 @@ def main(env, num_timesteps):
 
     optimizer_spec = OptimizerSpec(
         constructor=optim.SGD,
-        kwargs=dict(lr=LEARNING_RATE, eps=EPS, momentum=0.9),
+        kwargs=dict(lr=LEARNING_RATE, momentum=0.9),
     )
 
     exploration_schedule = LinearSchedule(1000000, 0.1)
