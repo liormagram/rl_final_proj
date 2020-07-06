@@ -130,6 +130,8 @@ def dqn_learing(
 
     Q = q_func(in_channels=input_arg, num_actions=num_actions)
     target_Q = q_func(in_channels=input_arg, num_actions=num_actions)
+
+    # Saving Weights
     # weights_folder = 'weights'
     #
     # last_file = 0
@@ -291,7 +293,6 @@ def dqn_learing(
             #3.c
             optimizer.zero_grad()
             Q_values.backward(bellamn_error)
-            # loss.backward()
             optimizer.step()
 
             #3.d
